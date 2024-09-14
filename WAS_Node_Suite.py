@@ -14239,8 +14239,8 @@ class WAS_Text_Load_Line_From_Multi_File:
         return {
             "required": {
                 "text": ("STRING", {"default": '', "multiline": True, "dynamicPrompts": False}),
-                "label": ("STRING", {"default": 'TextFileBatch', "multiline": False}),
                 "root_dir": (list(get_valid_dirs()), {}),
+                "label": ("STRING", {"default": 'TextFileBatch', "multiline": False}),
             }
         }
     
@@ -14250,7 +14250,7 @@ class WAS_Text_Load_Line_From_Multi_File:
 
     CATEGORY = "WAS Suite/Text"
 
-    def load_line_from_multi_file(self, text, lable = 'TextFileBatch', root_dir):
+    def load_line_from_multi_file(self, text, root_dir, lable = 'TextFileBatch'):
         if text is None:
             cstr("No text provided").error.print()
             return ("",)
