@@ -672,7 +672,7 @@ def calculate_direct_occlusion_factor(rgb_normalized, depth_normalized, height, 
 
 
 def get_allowed_dirs():
-    dir = os.path.abspath(os.path.join(__file__, "../../user"))
+    dir = os.path.abspath(os.path.join(__file__, "../user"))
     file = os.path.join(dir, "text_file_dirs.json")
     with open(file, "r") as f:
         return json.loads(f.read())
