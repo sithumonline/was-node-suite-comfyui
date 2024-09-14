@@ -724,6 +724,13 @@ def get_file(root_dir, file):
     return full_path
 
 
+def read_lines_from_file(file_path):
+    with open(file_path, 'r') as f:
+        lines = f.read().strip().split("\n")
+        line_count = len(lines)
+    return lines, line_count
+
+
 class PromptStyles:
     def __init__(self, styles_file, preview_length = 32):
         self.styles_file = styles_file
@@ -14296,19 +14303,21 @@ class WAS_Text_Load_Line_From_Multi_File:
             cstr(f"File not found: {file}").error.print()
             return ("",)
         
-        with open(self.file_, 'r') as f:
-            lines = f.read().strip().split("\n")
-            line_index = self.HDB.get('Line Counter', label)
-            if line_index is None:
-                line_index = 0
-            line = lines[line_index % len(lines)]
-            self.HDB.insert('Line Counter', label, line_index + 1)
-            line_count = len(lines)
-            if line_index >= line_count:
-                self.HDB.insert('FileBatch Counter', label, file_index + 1)
-                self.HDB.insert('Line Counter', label, 0)
-            cstr(f"Loaded line: {line} index: {line_index} of {line_count} from file: {file}").msg.print()
-            return (line,)
+        lines, line_count = read_lines_from_file(self.file_)
+        if line_count == 0:
+            cstr(f"File is empty: {file}").error.print()
+            return ("",)
+        
+        line_index = self.HDB.get('BatchLine Counter', label)
+        if line_index is None:
+            line_index = 0
+        line = lines[line_index % line_count]
+        self.HDB.insert('BatchLine Counter', label, line_index + 1)
+        if line_index % line_count == 0:
+            self.HDB.insert('FileBatch Counter', label, file_index + 1)
+            self.HDB.insert('BatchLine Counter', label, 0)
+        cstr(f"Loaded line: {line} index: {line_index} of {line_count} from file: {file}").msg.print()
+        return (line,)
 
 
 # NODE MAPPING
