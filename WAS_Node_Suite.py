@@ -14250,7 +14250,7 @@ class WAS_Text_Load_Line_From_Multi_File:
 
     CATEGORY = "WAS Suite/Text"
 
-    def load_line_from_multi_file(self, text, root_dir, lable = 'TextFileBatch'):
+    def load_line_from_multi_file(self, text, root_dir, label = 'TextFileBatch'):
         if text is None:
             cstr("No text provided").error.print()
             return ("",)
@@ -14260,7 +14260,7 @@ class WAS_Text_Load_Line_From_Multi_File:
             cstr("No files provided").error.print()
             return ("",)
         
-        file_index = self.HDB.get('FileBatch Counter', lable)
+        file_index = self.HDB.get('FileBatch Counter', label)
         if file_index is None:
             file_index = 0
         file = files[file_index % len(files)]
@@ -14272,15 +14272,15 @@ class WAS_Text_Load_Line_From_Multi_File:
         
         with open(file_, 'r') as f:
             lines = f.read().splitlines()
-            line_index = self.HDB.get('Line Counter', lable)
+            line_index = self.HDB.get('Line Counter', label)
             if line_index is None:
                 line_index = 0
             line = lines[line_index % len(lines)]
-            self.HDB.set('Line Counter', lable, line_index + 1)
+            self.HDB.set('Line Counter', label, line_index + 1)
             line_count = len(lines)
             if line_index >= line_count:
-                self.HDB.set('FileBatch Counter', lable, file_index + 1)
-                self.HDB.set('Line Counter', lable, 0)
+                self.HDB.set('FileBatch Counter', label, file_index + 1)
+                self.HDB.set('Line Counter', label, 0)
             return (line,)
 
 
