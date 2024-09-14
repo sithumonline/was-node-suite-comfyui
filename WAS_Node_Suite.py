@@ -14291,12 +14291,12 @@ class WAS_Text_Load_Line_From_Multi_File:
             file_index = 0
         file = files[file_index % len(files)]
 
-        file_ = get_file(root_dir, file)
-        if file_ is None:
+        self.file_ = get_file(root_dir, file)
+        if self.file_ is None:
             cstr(f"File not found: {file}").error.print()
             return ("",)
         
-        with open(file_, 'r') as f:
+        with open(self.file_, 'r') as f:
             lines = f.read().strip().split("\n")
             line_index = self.HDB.get('Line Counter', label)
             if line_index is None:
