@@ -671,6 +671,33 @@ def calculate_direct_occlusion_factor(rgb_normalized, depth_normalized, height, 
     return occlusion_scaled
 
 
+def get_allowed_dirs():
+    dir = os.path.abspath(os.path.join(__file__, "../../user"))
+    file = os.path.join(dir, "text_file_dirs.json")
+    with open(file, "r") as f:
+        return json.loads(f.read())
+
+
+def get_valid_dirs():
+    return get_allowed_dirs().keys()
+
+
+def get_file(root_dir, file):
+    if file == "[none]" or not file or not file.strip():
+        raise ValueError("No file")
+
+    root_dir = get_dir_from_name(root_dir)
+    root_dir = get_real_path(root_dir)
+    if not os.path.exists(root_dir):
+        os.mkdir(root_dir)
+    full_path = os.path.join(root_dir, file)
+
+    if not is_child_dir(root_dir, full_path):
+        raise ReferenceError()
+
+    return full_path
+
+
 class PromptStyles:
     def __init__(self, styles_file, preview_length = 32):
         self.styles_file = styles_file
@@ -14203,6 +14230,60 @@ class WAS_Integer_Place_Counter:
         return (output,)
 
 
+class WAS_Text_Load_Line_From_Multi_File:
+    def __init__(self):
+        self.HDB = WASDatabase(WAS_HISTORY_DATABASE)
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "text": ("STRING", {"default": '', "multiline": True, "dynamicPrompts": False}),
+                "label": ("STRING", {"default": 'TextFileBatch', "multiline": False}),
+                "root_dir": (list(get_valid_dirs()), {}),
+            }
+        }
+    
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("line_text",)
+    FUNCTION = "load_line_from_multi_file"
+
+    CATEGORY = "WAS Suite/Text"
+
+    def load_line_from_multi_file(self, text, lable = 'TextFileBatch', root_dir):
+        if text is None:
+            cstr("No text provided").error.print()
+            return ("",)
+        
+        files = text.strip().split("\n")
+        if len(files) == 0:
+            cstr("No files provided").error.print()
+            return ("",)
+        
+        file_index = self.HDB.get('FileBatch Counter', lable)
+        if file_index is None:
+            file_index = 0
+        file = files[file_index % len(files)]
+
+        file_ = get_file(root_dir, file)
+        if file_ is None:
+            cstr(f"File not found: {file}").error.print()
+            return ("",)
+        
+        with open(file_, 'r') as f:
+            lines = f.read().splitlines()
+            line_index = self.HDB.get('Line Counter', lable)
+            if line_index is None:
+                line_index = 0
+            line = lines[line_index % len(lines)]
+            self.HDB.set('Line Counter', lable, line_index + 1)
+            line_count = len(lines)
+            if line_index >= line_count:
+                self.HDB.set('FileBatch Counter', lable, file_index + 1)
+                self.HDB.set('Line Counter', lable, 0)
+            return (line,)
+
+
 # NODE MAPPING
 NODE_CLASS_MAPPINGS = {
     "BLIP Model Loader": WAS_BLIP_Model_Loader,
@@ -14398,6 +14479,7 @@ NODE_CLASS_MAPPINGS = {
     "Text List Concatenate": WAS_Text_List_Concatenate,
     "Text List to Text": WAS_Text_List_to_Text,
     "Text Load Line From File": WAS_Text_Load_Line_From_File,
+    "Text Load Line From Multi File": WAS_Text_Load_Line_From_Multi_File,
     "Text Multiline": WAS_Text_Multiline,
     "Text Multiline (Code Compatible)": WAS_Text_Multiline_Raw,
     "Text Parse A1111 Embeddings": WAS_Text_Parse_Embeddings_By_Name,
