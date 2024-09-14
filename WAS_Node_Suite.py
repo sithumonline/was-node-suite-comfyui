@@ -14297,7 +14297,7 @@ class WAS_Text_Load_Line_From_Multi_File:
             return ("",)
         
         with open(file_, 'r') as f:
-            lines = f.read().splitlines()
+            lines = f.read().strip().split("\n")
             line_index = self.HDB.get('Line Counter', label)
             if line_index is None:
                 line_index = 0
