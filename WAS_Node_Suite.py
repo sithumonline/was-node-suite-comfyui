@@ -14277,8 +14277,8 @@ class WAS_Text_Load_Line_From_Multi_File:
             }
         }
     
-    RETURN_TYPES = ("STRING",)
-    RETURN_NAMES = ("line_text",)
+    RETURN_TYPES = ("STRING","DICT")
+    RETURN_NAMES = ("line_text", "line_dict")
     FUNCTION = "load_line_from_multi_file"
 
     CATEGORY = "WAS Suite/Text"
@@ -14286,12 +14286,12 @@ class WAS_Text_Load_Line_From_Multi_File:
     def load_line_from_multi_file(self, text, root_dir, label = 'TextFileBatch'):
         if text is None:
             cstr("No text provided").error.print()
-            return ("",)
+            return ("", {})
         
         files = text.strip().split("\n")
         if len(files) == 0:
             cstr("No files provided").error.print()
-            return ("",)
+            return ("", {})
         
         file_index = self.HDB.get('FileBatch Counter', label)
         if file_index is None:
@@ -14301,12 +14301,12 @@ class WAS_Text_Load_Line_From_Multi_File:
         self.file_ = get_file(root_dir, file)
         if self.file_ is None:
             cstr(f"File not found: {file}").error.print()
-            return ("",)
+            return ("", {})
         
         lines, line_count = read_lines_from_file(self.file_)
         if line_count == 0:
             cstr(f"File is empty: {file}").error.print()
-            return ("",)
+            return ("", {})
         
         line_index = self.HDB.get('BatchLine Counter', label)
         if line_index is None:
@@ -14317,7 +14317,7 @@ class WAS_Text_Load_Line_From_Multi_File:
             self.HDB.insert('FileBatch Counter', label, file_index + 1)
             self.HDB.insert('BatchLine Counter', label, 0)
         cstr(f"Loaded line: {line} index: {line_index} of {line_count} from file: {file}").msg.print()
-        return (line,)
+        return (line, {"line_text": line, "line_index": line_index, "line_count": line_count, "file": file, "file_index": file_index, "lines": lines})
 
 
 # NODE MAPPING
