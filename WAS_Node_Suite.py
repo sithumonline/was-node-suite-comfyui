@@ -14308,16 +14308,16 @@ class WAS_Text_Load_Line_From_Multi_File:
             cstr(f"File is empty: {file}").error.print()
             return ("", {})
         
-        line_index = self.HDB.get('BatchLine Counter', label)
+        line_index = self.HDB.get('BatchLine Counter', f"{label}_")
         if line_index is None:
             line_index = 0
         line = lines[line_index % line_count]
-        self.HDB.insert('BatchLine Counter', label, line_index + 1)
+        self.HDB.insert('BatchLine Counter', f"{label}_", line_index + 1)
         if line_index % line_count == 0:
             self.HDB.insert('FileBatch Counter', label, file_index + 1)
             self.HDB.insert('BatchLine Counter', label, 0)
         cstr(f"Loaded line: {line} index: {line_index} of {line_count} from file: {file}").msg.print()
-        return (line, {"line_text": line, "line_index": line_index, "line_count": line_count, "file": file, "file_index": file_index, "lines": lines})
+        return (line, {"line_text": line, "line_index": line_index, "line_count": line_count, "file": file, "file_index": file_index, "files": files, "lines": lines})
 
 
 # NODE MAPPING
