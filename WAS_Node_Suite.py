@@ -14302,11 +14302,11 @@ class WAS_Text_Load_Line_From_Multi_File:
             if line_index is None:
                 line_index = 0
             line = lines[line_index % len(lines)]
-            self.HDB.set('Line Counter', label, line_index + 1)
+            self.HDB.insert('Line Counter', label, line_index + 1)
             line_count = len(lines)
             if line_index >= line_count:
-                self.HDB.set('FileBatch Counter', label, file_index + 1)
-                self.HDB.set('Line Counter', label, 0)
+                self.HDB.insert('FileBatch Counter', label, file_index + 1)
+                self.HDB.insert('Line Counter', label, 0)
             return (line,)
 
 
