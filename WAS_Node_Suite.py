@@ -14307,6 +14307,7 @@ class WAS_Text_Load_Line_From_Multi_File:
             if line_index >= line_count:
                 self.HDB.insert('FileBatch Counter', label, file_index + 1)
                 self.HDB.insert('Line Counter', label, 0)
+            cstr(f"Loaded line: {line} index: {line_index} of {line_count} from file: {file}").msg.print()
             return (line,)
 
 
