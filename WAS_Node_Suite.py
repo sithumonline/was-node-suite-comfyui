@@ -46,6 +46,7 @@ import datetime
 import time
 import torch
 from tqdm import tqdm
+import folder_paths
 
 p310_plus = (sys.version_info >= (3, 10))
 
@@ -680,6 +681,31 @@ def get_allowed_dirs():
 
 def get_valid_dirs():
     return get_allowed_dirs().keys()
+
+
+def get_dir_from_name(name):
+    dirs = get_allowed_dirs()
+    if name not in dirs:
+        raise KeyError(name + " dir not found")
+
+    path = dirs[name]
+    path = path.replace("$input", folder_paths.get_input_directory())
+    path = path.replace("$output", folder_paths.get_output_directory())
+    path = path.replace("$temp", folder_paths.get_temp_directory())
+    return path
+
+
+def get_real_path(dir):
+    dir = dir.replace("/**/", "/")
+    dir = os.path.abspath(dir)
+    dir = os.path.split(dir)[0]
+    return dir
+
+
+def is_child_dir(parent_path, child_path):
+    parent_path = os.path.abspath(parent_path)
+    child_path = os.path.abspath(child_path)
+    return os.path.commonpath([parent_path]) == os.path.commonpath([parent_path, child_path])
 
 
 def get_file(root_dir, file):
